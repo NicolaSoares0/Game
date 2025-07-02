@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interativo</title>
+    <link rel="stylesheet" href="./estilo/style.css">
+    <script src="./java/script.js" defer></script>
+</head>
+
+<body>
+    <div class="quiz-container" id="quiz">
+        <div class="quiz-header">
+            <h2 id="question">Texto da Pergunta</h2>
+            <ul>
+                <li id="li_a">
+                    <input type="radio" name="answer" id="a" class="answer">
+                    <label for="a" id="a_text">Resposta A</label>
+                </li>
+                <li id="li_b">
+                    <input type="radio" name="answer" id="b" class="answer">
+                    <label for="b" id="b_text">Resposta B</label>
+                </li>
+                <li id="li_c">
+                    <input type="radio" name="answer" id="c" class="answer">
+                    <label for="c" id="c_text">Resposta C</label>
+                </li>
+                <li id="li_d">
+                    <input type="radio" name="answer" id="d" class="answer">
+                    <label for="d" id="d_text">Resposta D</label>
+                </li>
+            </ul>
+        </div>
+        <button id="submit">Próxima Pergunta</button>
+    </div>
+
+
+</body>
+
+</html>
