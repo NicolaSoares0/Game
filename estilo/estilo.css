@@ -1,13 +1,6 @@
-/* Adicione este código ao seu style.css */
 
-/* Classe para esconder elementos */
-.hide {
-    display: none;
-}
-
-/* Estilo geral para os contêineres de tela */
 .container {
-    width: 600px;
+    width: 100%;
     max-width: 95%;
     background-color: #fff;
     border-radius: 10px;
@@ -22,37 +15,22 @@ a{
     color: white;
     border-radius: 20px;
     padding: 20px;
+    margin: 30px;
+    border:60px;
 }
 
-/* Estilos para botões genéricos */
-.btn {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    padding: 1rem 2rem;
-    font-size: 1.2rem;
-    font-family: inherit;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 1rem;
-    transition: transform 0.2s, background-color 0.2s;
+a:hover{
+    transform: scale(1.20);
+    background-color: white;
+    text-decoration: none;
+    color: black;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 10px;
+    border: 20px;
+
 }
 
-.btn:hover {
-    transform: scale(1.05);
-    background-color: #0056b3;
-}
-
-.btn.btn-secondary {
-    background-color: #6c757d;
-}
-
-.btn.btn-secondary:hover {
-    background-color: #5a6268;
-}
-
-/* Estilo da lista de placares */
 #high-scores-list {
     list-style-type: decimal;
     padding-left: 0;
@@ -68,11 +46,6 @@ a{
 
 #high-scores-list li:first-child {
     font-weight: bold;
-    color: #d4af37; /* Cor de ouro para o primeiro lugar */
+    color: #d4af37; 
 }
 
-/* O quiz-container agora fica dentro de um container maior */
-.quiz-container {
-    width: 100%;
-    box-shadow: none; /* Remove a sombra duplicada */
-}
