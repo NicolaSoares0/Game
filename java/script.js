@@ -112,9 +112,18 @@ submitBtn.addEventListener('click', () => {
             if (currentQuiz < quizData.length) {
                 loadQuiz();
             } else {
+                // <<<---- AQUI FOI FEITA A ALTERAÇÃO ---->>>
                 quiz.innerHTML = `
-                    <h2>Você respondeu corretamente a ${score}/${quizData.length} perguntas.</h2>
-                    <button onclick="location.reload()">Jogar Novamente</button>
+                    <div class="quiz-header">
+                        <h2>Quiz Finalizado!</h2>
+                    </div>
+                    <div class="results-body">
+                        <p>Você acertou ${score} de ${quizData.length} perguntas.</p>
+                        <div class="button-container">
+                            <button onclick="location.reload()">Jogar Novamente</button>
+                            <a href="inicio.html" class="btn">Voltar ao Início</a> 
+                        </div>
+                    </div>
                 `;
             }
         }, 1500);
