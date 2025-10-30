@@ -1,55 +1,64 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz do ENEM</title>
-    <link rel="stylesheet" href="./estilo/tela.css=">
-    <script src="./public/JavaScript/script.js" defer></script>
-    
+    <title></title>
+    <link rel="stylesheet" href="/public/Estilos/QuadroJogo.css">
+    <script src="/public/JavaScript/Jogo.js"defer></script> 
 </head>
 
 <body>
-    <div class="TelaJogo">
+    <div class="questao-container">
+        <form id="quiz-form">
+            <fieldset>
+                <legend></legend>
 
-        <h1>Configurar Quiz ENEM 🧠</h1>
-        <div class="menuJogo">
-            <label for="select-materia">Matéria:</label>
-            <select name="materias" id="select-materia">
-                <option value="matemática">Matemática</option>
-                <option value="linguagens">Linguagens (Português, Inglês, etc.)</option>
-                <option value="Ciências Humanas">Ciências Humanas (História, Geografia, etc.)</option>
-                <option value="Ciências da Natureza">Ciências da Natureza (Física, Química, Biologia)</option>
-            </select>
+                <div class="enunciado">
+                    <p>
+                        
+                    </p>
+                </div>
 
-            <label for="input-numero">Número de Questões:</label>
-            <input type="number" id="input-numero" name="number" placeholder="Número de questões" value="1" min="1">
+                <p class="comando">
+                </p>
 
-            <label for="select-dificuldade">Dificuldade (informativo):</label>
-            <select name="dificuldade" id="select-dificuldade">
-                <option value="facil">Fácil</option>
-                <option value="medio" selected>Médio</option>
-                <option value="dificil">Difícil</option>
-            </select>
+                <div class="alternativas">
+                    <ol>
+                        <li>
+                            <input type="radio" id="q1-a" name="q" value="A">
+                            <label for="q-a"></label>
+                        </li>
 
-            <button id="btn-iniciar">Iniciar Jogo</button>
-        </div>
+                        <li>
+                            <input type="radio" id="q1-b" name="q" value="B">
+                            <label for="q-b"></label>
+                        </li>
 
-        <hr>
-        <div id="quiz-container">
-            <h2>Questão:</h2>
-            <p id="quiz-pergunta">Clique em "Iniciar Jogo" para carregar uma pergunta.</p>
+                        <li>
+                            <input type="radio" id="q1-c" name="q" value="C">
+                            <label for="q-c"></label>
+                        </li>
 
-            <h3>Opções:</h3>
-            <ul id="quiz-opcoes">
-            </ul>
+                        <li>
+                            <input type="radio" id="q1-d" name="q" value="D">
+                            <label for="q-d"></label>
+                        </li>
 
-            <p id="quiz-resposta"></p>
+                        <li>
+                            <input type="radio" id="q1-e" name="q" value="E">
+                            <label for="q-e"></label>
+                        </li>
+                    </ol>
+                </div>
 
-            <button id="btn-tentar-novamente" style="display: none;">Carregar Outra Pergunta</button>
-        </div>
+                <button type="submit">Responder</button>
 
+                <p id="resultado"></p>
+
+            </fieldset>
+        </form>
     </div>
 </body>
 
