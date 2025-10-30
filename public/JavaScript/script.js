@@ -8,23 +8,23 @@ function getNumeroAleatorio(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 async function buscarUmaQuestaoAleatoria() {
-    //1. Sorteia os valores
+    //Sorteia os valores
     const anoAleatorio = getNumeroAleatorio(2009, 2023);
-    const questaoAleatoria = getNumeroAleatorio(1, 180); 
+    const questaoAleatoria = getNumeroAleatorio(1, 180);
 
-   
+
     const urlSorteada = `https://api.enem.dev/v1/exams/${anoAleatorio}/questions/${questaoAleatoria}`;
-    
+
     console.log(`Tentando buscar na URL: ${urlSorteada}`);
 
     try {
         const response = await fetch(urlSorteada);
 
-        // 3. Verifica a resposta
+        // Verifica a resposta
         if (!response.ok) {
-            
+
             console.warn(`Falha: ${response.status}. A combinação ${anoAleatorio}/${questaoAleatoria} não existe. Tentando outra...`);
-            return null; 
+            return null;
         }
 
         const questaoEncontrada = await response.json();
@@ -54,107 +54,89 @@ async function carregarEExibirQuiz() {
         tentativas++;
         console.log(`Tentativa ${tentativas} de ${maxTentativas}...`);
         questaoParaExibir = await buscarUmaQuestaoAleatoria();
-        
+
     }
 
-    // --- FIM DO LOOP ---
-
-    // 4. Verifica o resultado final
     if (questaoParaExibir) {
         exibirQuestaoNaTela(questaoParaExibir);
     } else {
-        // FALHA!
         console.error(`Não foi possível encontrar uma questão após ${maxTentativas} tentativas.`);
         if (elementoPergunta) elementoPergunta.textContent = `Não foi possível encontrar uma questão aleatória. A API pode estar fora do ar ou sobrecarregada. Tente novamente.`;
     }
 }
 
-/**
- * Função separada para exibir a questão na tela.
- * (Esta é a lógica que estava dentro do 'try' no seu script antigo)
- */
-/**
- * Função separada para exibir a questão na tela.
- *
- * *** VERSÃO CORRIGIDA PARA A API 'api.enem.dev' ***
- *
- */
 function exibirQuestaoNaTela(questaoParaExibir) {
-    // --- MÁGICA DA TROCA DE TELA ---
-    // 1. Esconde o menu de configuração
     const menu = document.querySelector('.menuJogo');
-    if (menu) menu.classList.add('escondido'); // Adiciona a classe .escondido
+    if (menu) menu.classList.add('escondido');
 
-    // 2. Mostra o container do quiz
     const containerQuiz = document.getElementById('quiz-container');
     if (containerQuiz) containerQuiz.style.display = 'block';
-    // --- FIM DA MÁGICA ---
 
-    
+
     if (elementoPergunta) {
-        // (O resto da sua função continua exatamente igual)
-        const ano = questaoParaExibir.year || (questaoParaExibir.exam ? questaoParaExibir.exam.year : "Ano Desconhecido");
-        elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong> ${questaoParaExibir.question}`;
-    }
+    const ano = questaoParaExibir.year || (questaoParaExibir.exam ? questaoParaExibir.exam.year : "Ano Desconhecido");
+
+    elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong> ${questaoParaExibir.question}`;
+}
 
     if (elementoOpcoes) {
-        // ... (toda a sua lógica de criar botões continua aqui) ...
         elementoOpcoes.innerHTML = '';
-        
-        // ... (etc) ...
+
     }
     if (elementoPergunta) {
-        // CORREÇÃO 1: Tornando a busca pelo ano mais robusta.
-        // A API nova tem 'year' na raiz E dentro de 'exam'. Vamos checar os dois.
         const ano = questaoParaExibir.year || (questaoParaExibir.exam ? questaoParaExibir.exam.year : "Ano Desconhecido");
-        
-        // A propriedade 'question' parece estar correta, de acordo com o log.
-        elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong> ${questaoParaExibir.question}`;
+        const contexto = questaoParaExibir.context || "";
+        const introducao = questaoParaExibir.alternativesIntroduction || "";
+
+        elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong> ${contexto} <br> ${questaoParaExibir.question} <br> ${introducao}`;
     }
 
     if (elementoOpcoes) {
-        elementoOpcoes.innerHTML = ''; // Limpa opções
-        
+        elementoOpcoes.innerHTML = '';
         if (!questaoParaExibir.alternatives || questaoParaExibir.alternatives.length === 0) {
             if (elementoPergunta) elementoPergunta.textContent = "Erro: A questão encontrada não possui alternativas.";
             return;
         }
-
-        // CORREÇÃO 2: Mudando a leitura das alternativas.
-        // Vamos supor que a API usa 'key' e 'description' (ou 'text')
-        // (Baseado no fato de que 'value' e 'text' falharam)
-        // A API da Vercel usava 'value' e 'text'.
-        // A API do enem.dev parece usar 'key' e 'description', mas vou checar 'text' também.
         questaoParaExibir.alternatives.forEach(alternativa => {
             const itemLista = document.createElement('li');
             const botaoOpcao = document.createElement('button');
-
-            // Tentativa de adivinhar a estrutura da alternativa
-            const letra = alternativa.key || alternativa.value || '?';
+            const letra = alternativa.letter || alternativa.key || alternativa.value || '?';
+            const urlImagemAlternativa = alternativa.file;
             const texto = alternativa.description || alternativa.text || '[Texto da alternativa em falta]';
+            
+            botaoOpcao.setAttribute('data-value', letra);
 
-            botaoOpcao.textContent = `${letra} ) ${texto}`;
-            botaoOpcao.setAttribute('data-value', letra); // Guarda o valor (A, B, C...)
+            if (urlImagemAlternativa) {
+                botaoOpcao.innerHTML = `${letra} ) <img src="${urlImagemAlternativa}" alt="Alternativa ${letra}" style="max-width: 90%; height: auto; vertical-align: middle;">`;
+            } else {
+                botaoOpcao.textContent = `${letra} ) ${texto}`;
+            }
 
             botaoOpcao.onclick = () => {
                 const valorSelecionado = botaoOpcao.getAttribute('data-value');
+                const respostaCorretaLetra = questaoParaExibir.correctAlternative;
+                const alternativaCorretaObj = questaoParaExibir.alternatives.find(alt => (alt.letter || alt.key || alt.value) === respostaCorretaLetra); 
                 
-                // CORREÇÃO 3: A API nova usa 'correctAlternative', não 'answer'.
-                const respostaCorretaLetra = questaoParaExibir.correctAlternative; 
-
-                // Encontra o objeto da alternativa correta para pegar o texto completo
-                const alternativaCorretaObj = questaoParaExibir.alternatives.find(alt => (alt.key || alt.value) === respostaCorretaLetra);
+                let htmlRespostaCorreta = `(Letra: ${respostaCorretaLetra})`;
                 
-                const textoRespostaCorreta = alternativaCorretaObj
-                    ? `${(alternativaCorretaObj.key || alternativaCorretaObj.value)} ) ${alternativaCorretaObj.description || alternativaCorretaObj.text || '[Texto em falta]'}`
-                    : `(Letra: ${respostaCorretaLetra})`;
+                if (alternativaCorretaObj) {
+                    const letraCorreta = alternativaCorretaObj.letter || alternativaCorretaObj.key || alternativaCorretaObj.value;
+                    
+                    if (alternativaCorretaObj.file) {
+                        htmlRespostaCorreta = `${letraCorreta} ) <img src="${alternativaCorretaObj.file}" alt="Resposta Correta" style="max-height: 60px; height: auto; vertical-align: middle;">`;
+                    } else {
+                        const textoCorreto = alternativaCorretaObj.description || alternativaCorretaObj.text || '[Texto em falta]';
+                        htmlRespostaCorreta = `${letraCorreta} ) ${textoCorreto}`;
+                    }
+                }
 
-                // CORREÇÃO 4: Comparando com 'respostaCorretaLetra'
+
+                //Comparando com 'respostaCorretaLetra'
                 if (valorSelecionado === respostaCorretaLetra) {
                     if (elementoResposta) elementoResposta.textContent = "✅ Resposta Correta!";
                     if (elementoResposta) elementoResposta.style.color = 'green';
                 } else {
-                    if (elementoResposta) elementoResposta.textContent = `❌ Incorreto. A resposta certa é: ${textoRespostaCorreta}`;
+                    if (elementoResposta) elementoResposta.innerHTML = `❌ Incorreto. A resposta certa é: ${htmlRespostaCorreta}`;
                     if (elementoResposta) elementoResposta.style.color = 'red';
                 }
                 elementoOpcoes.querySelectorAll('button').forEach(btn => btn.disabled = true);
@@ -166,27 +148,16 @@ function exibirQuestaoNaTela(questaoParaExibir) {
         });
     }
 }
-
-
-/* =======================================================
-    EVENT LISTENERS (MODIFICADOS)
-   ======================================================= */
-
 if (botaoIniciar) {
     botaoIniciar.addEventListener('click', (event) => {
-        event.preventDefault(); 
-        // Chama a nova função sem parâmetros, pois a lógica de 
-        // matéria/número não existe mais.
+        event.preventDefault();
         carregarEExibirQuiz();
     });
 }
 
 if (botaoTentarNovamente) {
     botaoTentarNovamente.addEventListener('click', () => {
-        // Também chama a nova função sem parâmetros.
         carregarEExibirQuiz();
     });
 }
-
-// --- INICIALIZAÇÃO ---
 console.log('Script carregado (Modo Sorteio). Aguardando clique em "Iniciar Jogo".');
