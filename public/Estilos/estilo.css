@@ -1,76 +1,85 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+/* --- Configurações Globais (Estilo ENEM) --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+:root {
+    --cor-enem-azul: #0072ce;
+    --cor-enem-azul-escuro: #005aA9;
+    --cor-fundo: #f0f2f5;
+    --cor-container: #ffffff;
+    --cor-texto-principal: #333;
+    --cor-texto-secundario: #555;
+    --cor-borda-suave: #dee2e6;
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #121212; 
-    color: #e0e0e0;
-    display: flex;
-    flex-direction: column; 
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto-principal);
+    margin: 0;
     padding: 20px;
-    gap: 20px; 
+    line-height: 1.6;
+    /* Centraliza o conteúdo da página */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
 }
 
+* {
+    box-sizing: border-box;
+}
 
+/* --- Container Principal (Menu) --- */
 .container {
-    background-color: #1e1e1e;
-    padding: 40px 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
     width: 100%;
-    max-width: 500px; 
+    margin: 15px auto;
+    background-color: var(--cor-container);
+    border-radius: 8px;
+    padding: 30px 40px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
     text-align: center;
-    border: 1px solid #333;
 }
 
-
+/* --- Títulos e Textos --- */
 h1 {
-    font-size: 2.5rem; 
+    color: var(--cor-enem-azul);
     font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 15px;
-    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
 p {
+    color: var(--cor-texto-secundario);
     font-size: 1.1rem;
-    color: #b0b0b0; 
-    line-height: 1.6;
+    margin-bottom: 0;
 }
 
-
-
+/* --- Estilização dos Links como Botões --- */
 .container a {
-    display: block; 
-    background: linear-gradient(90deg, #00c896, #00b48a);
-    color: #121212;
-    text-align: center;
-    padding: 15px 0;
+    display: block; /* Faz o link ocupar a largura toda */
+    background-color: var(--cor-enem-azul);
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
     text-decoration: none;
-    font-weight: 700;
-    font-size: 1.1rem;
-    border-radius: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 15px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px; /* Espaçamento entre os botões */
+    transition: background-color 0.3s ease;
 }
-
-
-.container a:not(:last-child) {
-    margin-bottom: 15px;
-}
-
 
 .container a:hover {
-    transform: translateY(-3px); 
-    box-shadow: 0 6px 15px rgba(0, 200, 150, 0.3);
+    background-color: var(--cor-enem-azul-escuro);
+}
+
+/* Estilo para o segundo botão (Placares) */
+.container a[href=""] {
+    background-color: var(--cor-texto-secundario);
+}
+
+.container a[href=""]:hover {
+    background-color: #333; /* Um cinza mais escuro no hover */
 }

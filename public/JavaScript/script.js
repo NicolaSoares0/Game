@@ -3,6 +3,7 @@ const elementoOpcoes = document.getElementById('quiz-opcoes');
 const elementoResposta = document.getElementById('quiz-resposta');
 const botaoTentarNovamente = document.getElementById('btn-tentar-novamente');
 const botaoIniciar = document.getElementById('btn-iniciar');
+const Materia = document.getElementById('select-materia');
 
 function getNumeroAleatorio(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -87,8 +88,10 @@ function exibirQuestaoNaTela(questaoParaExibir) {
         const ano = questaoParaExibir.year || (questaoParaExibir.exam ? questaoParaExibir.exam.year : "Ano Desconhecido");
         const contexto = questaoParaExibir.context || "";
         const introducao = questaoParaExibir.alternativesIntroduction || "";
+        const Disciplina = questaoParaExibir.discipline || "";
 
-        elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong> ${contexto} <br> ${questaoParaExibir.question} <br> ${introducao}`;
+
+        elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong> ${Disciplina} <br> ${contexto} <br> ${introducao}`;
     }
 
     if (elementoOpcoes) {
