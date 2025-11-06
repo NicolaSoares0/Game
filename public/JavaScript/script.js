@@ -1,23 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    const botaoIniciar = document.getElementById('btn-iniciar');
+    const elementoMateria = document.getElementById('select-materia');
+    const elementoNumero = document.getElementById('input-numero');
     const elementoPergunta = document.getElementById('quiz-pergunta');
     const elementoOpcoes = document.getElementById('quiz-opcoes');
     const elementoResposta = document.getElementById('quiz-resposta');
     const botaoTentarNovamente = document.getElementById('btn-tentar-novamente');
     const botaoVoltarMenu = document.getElementById('btn-voltar-menu');
-    const botaoIniciar = document.getElementById('btn-iniciar');
-    const elementoMateria = document.getElementById('select-materia');
+    const elementoTituloQuestao = document.getElementById('quiz-titulo-questao');
+
+    let totalQuestoes = 0;
+    let questaoAtual = 0;
+    let acertos = 0;
+    let rangeDaMateriaAtual = null;
+
     const RANGES_DAS_MATERIAS = {
         'Linguagens': { min: 91, max: 135 },
         'Ciências Humanas': { min: 1, max: 45 },
         'Ciências da Natureza': { min: 46, max: 90 },
-        'Matemática': { min: 136, max: 180 },
-        'Aleatório': { min: 1, max: 180 }
+        'Matemática': { min: 136, max: 180 }
     };
 
     function getRangeDaMateria(materia) {
         const range = RANGES_DAS_MATERIAS[materia];
-
         if (range) {
             console.log(`Matéria selecionada: ${materia}. Range: ${range.min}-${range.max}`);
             return range;
@@ -27,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     function getNumeroAleatorio(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -36,28 +41,99 @@ document.addEventListener('DOMContentLoaded', () => {
         const anoAleatorio = getNumeroAleatorio(2009, 2023);
         const questaoAleatoria = getNumeroAleatorio(rangeQuestoes.min, rangeQuestoes.max);
         const urlSorteada = `https://api.enem.dev/v1/exams/${anoAleatorio}/questions/${questaoAleatoria}`;
-
         console.log(`Tentando buscar na URL: ${urlSorteada}`);
-
         try {
             const response = await fetch(urlSorteada);
             if (!response.ok) {
                 console.warn(`Falha: ${response.status}. A combinação ${anoAleatorio}/${questaoAleatoria} não existe. Tentando outra...`);
                 return null;
             }
-
             const questaoEncontrada = await response.json();
             console.log("SUCESSO! Questão encontrada:", questaoEncontrada);
             return questaoEncontrada;
-
         } catch (error) {
             console.error("Erro de rede ao tentar buscar a questão:", error.message);
             return null;
         }
     }
 
+    function carregarProximaQuestao() {
+        questaoAtual++;
+
+        if (questaoAtual > totalQuestoes) {
+            exibirResultadoFinal();
+        } else {
+            if (elementoTituloQuestao) {
+                elementoTituloQuestao.textContent = `Questão ${questaoAtual} de ${totalQuestoes}`;
+            }
+
+            if (botaoTentarNovamente) {
+                if (questaoAtual === totalQuestoes) {
+                    botaoTentarNovamente.textContent = 'Ver Resultado';
+                } else {
+                    botaoTentarNovamente.textContent = 'Próxima Questão';
+                }
+            }
+            carregarEExibirQuiz(rangeDaMateriaAtual);
+        }
+    }
+    function exibirResultadoFinal() {
+        console.log("Quiz finalizado. Acertos:", acertos);
+
+        // Esconde os botões
+        if (botaoTentarNovamente) botaoTentarNovamente.style.display = 'none';
+        if (botaoVoltarMenu) botaoVoltarMenu.style.display = 'block';
+
+        // Limpa a tela
+        if (elementoOpcoes) elementoOpcoes.innerHTML = '';
+        if (elementoResposta) elementoResposta.textContent = '';
+        if (elementoResposta) elementoResposta.style.cssText = '';
+        if (elementoTituloQuestao) elementoTituloQuestao.textContent = 'Resultado Final';
+
+        // Mostra o placar
+        if (elementoPergunta) {
+            let porcentagem = ((acertos / totalQuestoes) * 100).toFixed(0);
+            elementoPergunta.innerHTML = `
+                <h2>Quiz Finalizado!</h2>
+                <p style="font-size: 1.2rem;">
+                    Você acertou <strong>${acertos}</strong> de <strong>${totalQuestoes}</strong> questões.
+                </p>
+                <p style="font-size: 1.5rem; font-weight: bold;">
+                    Seu aproveitamento: ${porcentagem}%
+                </p>
+            `;
+            salvarPlacarNoBanco("Jogador", acertos, totalQuestoes, porcentagem);
+        }
+
+    }
+    async function salvarPlacarNoBanco(nome, acertos, totalQuestoes, porcentagem) {
+        try {
+            const dados = {
+                nome: nome,
+                acertos: acertos,
+                totalQuestoes: totalQuestoes,
+                porcentagem: parseFloat(porcentagem) 
+            };
+
+            const response = await fetch('/api/placar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dados)
+            });
+
+            if (response.ok) {
+                console.log('Placar salvo com sucesso!');
+            } else {
+                console.error('Falha ao salvar placar.');
+            }
+        } catch (error) {
+            console.error('Erro de rede ao salvar placar:', error);
+        }
+    }
     async function carregarEExibirQuiz(rangeQuestoes) {
-        console.log("Iniciando busca por questão aleatória...");
+        console.log(`Iniciando busca pela questão ${questaoAtual}...`);
         if (botaoTentarNovamente) botaoTentarNovamente.style.display = 'none';
         if (botaoVoltarMenu) botaoVoltarMenu.style.display = 'none';
         if (elementoPergunta) elementoPergunta.textContent = 'Procurando uma questão (pode demorar)...';
@@ -80,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             console.error(`Não foi possível encontrar uma questão após ${maxTentativas} tentativas.`);
             if (elementoPergunta) elementoPergunta.textContent = `Não foi possível encontrar uma questão aleatória para esta matéria. A API pode estar fora do ar ou sobrecarregada. Tente novamente.`;
+            if (botaoVoltarMenu) botaoVoltarMenu.style.display = 'block';
         }
     }
     function exibirQuestaoNaTela(questaoParaExibir) {
@@ -88,52 +165,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const containerQuiz = document.getElementById('quiz-container');
         if (containerQuiz) containerQuiz.style.display = 'block';
 
+        // Lógica do Enunciado
         if (elementoPergunta) {
-
             const ano = questaoParaExibir.year || (questaoParaExibir.exam ? questaoParaExibir.exam.year : "Ano Desconhecido");
             const disciplina = questaoParaExibir.discipline || "";
-            const textoPergunta = questaoParaExibir.question || "";
-
-            // carregar a imagem na questão
+            const TextContext = questaoParaExibir.context || "";
+            const introducao = questaoParaExibir.alternativesIntroduction || "";
             const arrayDeImagens = questaoParaExibir.files;
             const urlImagemSingular = questaoParaExibir.file;
-            const urlImagemContexto = questaoParaExibir.context;
-
-            const introducaoAlternativas = questaoParaExibir.alternativesIntroduction || "";
 
             let htmlImagens = "";
 
             if (arrayDeImagens && Array.isArray(arrayDeImagens) && arrayDeImagens.length > 0) {
-
                 htmlImagens = arrayDeImagens.map(imgObj => {
                     const url = imgObj.file || imgObj;
                     const altText = imgObj.name || "Imagem da questão";
-                    return `
-                <br>
-                <img src="${url}" alt="${altText}" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;">
-            `;
+                    if (url && url !== 'null') {
+                        return `
+                            <br>
+                            <img src="${url}" alt="${altText}" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;">
+                        `;
+                    }
+                    return '';
                 }).join('');
-
             }
-            else if (urlImagemSingular) {
+            else if (urlImagemSingular && urlImagemSingular !== 'null') {
                 htmlImagens = `
-            <br>
-            <img src="${urlImagemSingular}" alt="Imagem da questão" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;">
-            <br>
-        `;
+                    <br> <img src="${urlImagemSingular}" alt="Imagem da questão" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;"> <br>
+                `;
             }
-            else if (urlImagemContexto) {
-                htmlImagens = `
-            <br>
-            <img src="${urlImagemContexto}" alt="Imagem da questão" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;">
-            <br>
-        `;
-            }
-            elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong><em>${disciplina}</em><br>${textoPergunta} ${htmlImagens} <br>${introducaoAlternativas}`;
+            elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong> <em>${disciplina}</em><br>${TextContext} ${htmlImagens} <br>${introducao}`;
         }
+
         if (elementoOpcoes) {
             elementoOpcoes.innerHTML = '';
-
             if (!questaoParaExibir.alternatives || questaoParaExibir.alternatives.length === 0) {
                 if (elementoPergunta) elementoPergunta.textContent = "Erro: A questão encontrada não possui alternativas.";
                 return;
@@ -148,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 botaoOpcao.setAttribute('data-value', letra);
 
-                if (urlImagemAlternativa) {
+                if (urlImagemAlternativa && urlImagemAlternativa !== 'null') {
                     botaoOpcao.innerHTML = `${letra} ) <img src="${urlImagemAlternativa}" alt="Alternativa ${letra}" style="max-width: 90%; height: auto; vertical-align: middle;">`;
                 } else {
                     botaoOpcao.textContent = `${letra} ) ${texto}`;
@@ -157,15 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 botaoOpcao.onclick = () => {
                     const valorSelecionado = botaoOpcao.getAttribute('data-value');
                     const respostaCorretaLetra = questaoParaExibir.correctAlternative;
-
                     const alternativaCorretaObj = questaoParaExibir.alternatives.find(alt => (alt.letter || alt.key || alt.value) === respostaCorretaLetra);
-
                     let htmlRespostaCorreta = `(Letra: ${respostaCorretaLetra})`;
 
                     if (alternativaCorretaObj) {
                         const letraCorreta = alternativaCorretaObj.letter || alternativaCorretaObj.key || alternativaCorretaObj.value;
-
-                        if (alternativaCorretaObj.file) {
+                        if (alternativaCorretaObj.file && alternativaCorretaObj.file !== 'null') {
                             htmlRespostaCorreta = `${letraCorreta} ) <img src="${alternativaCorretaObj.file}" alt="Resposta Correta" style="max-height: 60px; height: auto; vertical-align: middle;">`;
                         } else {
                             const textoCorreto = alternativaCorretaObj.description || alternativaCorretaObj.text || '[Texto em falta]';
@@ -176,6 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (valorSelecionado === respostaCorretaLetra) {
                         if (elementoResposta) elementoResposta.textContent = "✅ Resposta Correta!";
                         if (elementoResposta) elementoResposta.style.color = 'green';
+
+                        acertos++;
+                        console.log('Acertou! Total de acertos:', acertos);
+
                     } else {
                         if (elementoResposta) elementoResposta.innerHTML = `❌ Incorreto. A resposta certa é: ${htmlRespostaCorreta}`;
                         if (elementoResposta) elementoResposta.style.color = 'red';
@@ -184,50 +250,54 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (botaoTentarNovamente) botaoTentarNovamente.style.display = 'block';
                     if (botaoVoltarMenu) botaoVoltarMenu.style.display = 'block';
                 };
-
                 itemLista.appendChild(botaoOpcao);
                 elementoOpcoes.appendChild(itemLista);
             });
         }
     }
 
-
     if (botaoIniciar) {
         botaoIniciar.addEventListener('click', (event) => {
             event.preventDefault();
-
             const materiaSelecionada = elementoMateria.value;
-            const range = getRangeDaMateria(materiaSelecionada);
+            const numeroSelecionado = parseInt(elementoNumero.value, 10);
+            totalQuestoes = (numeroSelecionado > 0) ? numeroSelecionado : 1;
+            rangeDaMateriaAtual = getRangeDaMateria(materiaSelecionada);
 
-            carregarEExibirQuiz(range);
+            questaoAtual = 0;
+            acertos = 0;
+            carregarProximaQuestao();
         });
     }
 
     if (botaoTentarNovamente) {
         botaoTentarNovamente.addEventListener('click', () => {
-            const materiaSelecionada = elementoMateria.value;
-            const range = getRangeDaMateria(materiaSelecionada);
-            carregarEExibirQuiz(range);
+            carregarProximaQuestao();
         });
     }
+
     if (botaoVoltarMenu) {
         botaoVoltarMenu.addEventListener('click', () => {
             const menu = document.querySelector('.menuJogo');
             if (menu) menu.classList.remove('escondido');
-
             const containerQuiz = document.getElementById('quiz-container');
             if (containerQuiz) containerQuiz.style.display = 'none';
-
             if (elementoPergunta) elementoPergunta.innerHTML = 'Clique em "Iniciar Jogo" para carregar uma pergunta.';
             if (elementoOpcoes) elementoOpcoes.innerHTML = '';
             if (elementoResposta) elementoResposta.textContent = '';
             if (elementoResposta) elementoResposta.style.cssText = '';
             if (botaoTentarNovamente) botaoTentarNovamente.style.display = 'none';
             if (botaoVoltarMenu) botaoVoltarMenu.style.display = 'none';
+            if (elementoTituloQuestao) elementoTituloQuestao.textContent = 'Questão:';
+            totalQuestoes = 0;
+            questaoAtual = 0;
+            acertos = 0;
+            rangeDaMateriaAtual = null;
+            if (botaoTentarNovamente) {
+                botaoTentarNovamente.textContent = 'Carregar Outra Pergunta';
+            }
         });
     }
-
-    console.log('Script carregado (Modo Matérias). Aguardando clique em "Iniciar Jogo".');
-
+    console.log('Script carregado (Modo Simulado). Aguardando clique em "Iniciar Jogo".');
 
 });

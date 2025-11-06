@@ -227,3 +227,23 @@ hr {
 .escondido {
     display: none !important;
 }
+
+:root {
+    --cor-enem-azul: #0072ce;
+    --cor-enem-azul-escuro: #005aA9;
+    --cor-texto-secundario: #555;
+}
+a {
+    display: block;
+    background-color: var(--cor-enem-azul);
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 15px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px; 
+    transition: background-color 0.3s ease;
+    text-align: center;
+}

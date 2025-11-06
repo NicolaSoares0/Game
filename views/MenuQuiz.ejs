@@ -5,12 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz do ENEM</title>
-    
     <link rel="stylesheet" href="/Estilos/tela.css">
-    
     <script src="/JavaScript/script.js" defer></script>
-    
-</head> <body> <div class="TelaJogo">
+
+</head>
+
+<body>
+    <div class="TelaJogo">
 
         <h1>IFVEST🧠</h1>
         <div class="menuJogo">
@@ -23,7 +24,7 @@
             </select>
 
             <label for="input-numero">Número de Questões:</label>
-            <input type="number" id="input-numero" name="number" placeholder="Número de questões" value="1" min="1">
+            <input type="number" id="input-numero" name="number" placeholder="Número de questões" value="1" min="1" max="20">
 
             <label for="select-dificuldade">Dificuldade (informativo):</label>
             <select name="dificuldade" id="select-dificuldade">
@@ -32,12 +33,13 @@
                 <option value="dificil">Difícil</option>
             </select>
 
-           <button id="btn-iniciar">Iniciar IFquizz</button>
+            <button id="btn-iniciar">Iniciar IFquizz</button>
+            <a href="/Inicio">Voltar ao Menu</a>
         </div>
 
         <hr>
         <div id="quiz-container">
-            <h2>Questão:</h2>
+            <h2 id="quiz-titulo-questao">Questão:</h2>
             <p id="quiz-pergunta">Clique em "Iniciar Jogo" para carregar uma pergunta.</p>
 
             <h3>Opções:</h3>
@@ -47,7 +49,7 @@
             <p id="quiz-resposta"></p>
 
             <button id="btn-tentar-novamente" style="display: none;">Carregar Outra Pergunta</button>
-            <button id="btn-voltar-menu" style="display: none;">voltar</button>
+            <button id="btn-voltar-menu" style="display: none;">voltar para o menu</button>
         </div>
 
     </div>
