@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: './quiz.sqlite' 
+const sequelize = new Sequelize('ifvest', 'root', 'Nicolas2015.nf', {
+  host: 'localhost', // 'localhost' é o padrão para conexão local
+  dialect: 'mysql'
 });
 
 

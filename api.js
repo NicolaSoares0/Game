@@ -1,6 +1,7 @@
 const { default: axios } = require("axios");
 const JSON = require("json5");
-const path = require("path")
+const path = require("path");
+const Placar = require("./models/placar");
 
 
 const express = require("express");
@@ -33,11 +34,10 @@ app.get("/Inicio", (_req, res) => {
 
 
 
-app.post('/api/placar', async (req, res) => {
+app.post('/models/placar', async (req, res) => {
     try {
         const { nome, acertos, totalQuestoes, porcentagem } = req.body;
 
-        // Cria uma nova entrada no banco de dados
         const novoPlacar = await Placar.create({
             nome: nome,
             acertos: acertos,
@@ -46,7 +46,7 @@ app.post('/api/placar', async (req, res) => {
         });
 
         console.log('Novo placar salvo:', novoPlacar.toJSON());
-        res.status(201).json(novoPlacar); // Retorna o placar salvo
+        res.status(201).json(novoPlacar); 
 
     } catch (error) {
         console.error('Erro ao salvar placar:', error);
@@ -54,16 +54,14 @@ app.post('/api/placar', async (req, res) => {
     }
 });
 
-// Rota GET para LER todos os placares (para o placar de líderes)
 app.get('/api/placar', async (req, res) => {
     try {
-        // Busca todos os placares, ordenados dos maiores acertos para os menores
-        const placares = await placar.findAll({
+        const placares = await Placar.findAll({
             order: [
-                ['acertos', 'DESC'], // Ordena por acertos (maior primeiro)
-                ['porcentagem', 'DESC'] // Desempate pela porcentagem
+                ['acertos', 'DESC'], 
+                ['porcentagem', 'DESC'] 
             ],
-            limit: 10 // Pega só os 10 melhores
+            limit: 10 
         });
 
         res.status(200).json(placares);
