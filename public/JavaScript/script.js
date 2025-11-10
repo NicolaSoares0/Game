@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const botaoVoltarMenu = document.getElementById('btn-voltar-menu');
     const elementoTituloQuestao = document.getElementById('quiz-titulo-questao');
 
+
     
     let totalQuestoes = 0;
     let questaoAtual = 0;
@@ -194,10 +195,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (elementoPergunta) {
             const ano = questaoParaExibir.year || (questaoParaExibir.exam ? questaoParaExibir.exam.year : "Ano Desconhecido");
             const disciplina = questaoParaExibir.discipline || "";
-            const TextContext = questaoParaExibir.context || "";
+            let textContext = questaoParaExibir.context || "";
             const introducao = questaoParaExibir.alternativesIntroduction || "";
             const arrayDeImagens = questaoParaExibir.files;
             const urlImagemSingular = questaoParaExibir.file;
+            const regex = /\s*\[!?\]\s*\([^)]+\.(jpg|png|gif|jpeg)\)/gi;
+            const regexExclamacao = /^\s*!\s*/;
+
+            textContext = textContext.replace(regex, '');
+            textContext = textContext.replace(regexExclamacao, '');
 
             let htmlImagens = "";
 
@@ -219,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <br> <img src="${urlImagemSingular}" alt="Imagem da questão" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;"> <br>
                 `;
             }
-            elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong> <em>${disciplina}</em><br>${TextContext} ${htmlImagens} <br>${introducao}`;
+            elementoPergunta.innerHTML = `<strong>[ENEM ${ano}]</strong> <em>${disciplina}</em><br>${textContext} ${htmlImagens} <br>${introducao}`;
         }
 
         if (elementoOpcoes) {
