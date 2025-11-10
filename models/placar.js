@@ -3,7 +3,6 @@ const sequelize = require('../DataBase/index.js');
 
 const Placar = sequelize.define('placar', {
   nome: {
-    default: 'nicolas',
     type: DataTypes.STRING,
     allowNull: false
   },

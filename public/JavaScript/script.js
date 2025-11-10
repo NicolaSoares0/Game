@@ -10,38 +10,68 @@ document.addEventListener('DOMContentLoaded', () => {
     const botaoVoltarMenu = document.getElementById('btn-voltar-menu');
     const elementoTituloQuestao = document.getElementById('quiz-titulo-questao');
 
+    
     let totalQuestoes = 0;
     let questaoAtual = 0;
     let acertos = 0;
-    let rangeDaMateriaAtual = null;
+    let materiaAtual = null;
 
     const RANGES_DAS_MATERIAS = {
-        'Linguagens': { min: 91, max: 135 },
-        'Ciências Humanas': { min: 1, max: 45 },
-        'Ciências da Natureza': { min: 46, max: 90 },
+        'Ciências da Natureza': { min: 90, max: 135 },
         'Matemática': { min: 136, max: 180 }
     };
 
-    function getRangeDaMateria(materia) {
-        const range = RANGES_DAS_MATERIAS[materia];
-        if (range) {
-            console.log(`Matéria selecionada: ${materia}. Range: ${range.min}-${range.max}`);
-            return range;
-        } else {
-            console.warn(`Matéria "${materia}" não reconhecida. Sorteando de 1 a 180.`);
-            return RANGES_DAS_MATERIAS['Aleatório'];
+    function getRangeParaMateriaEAno(materia, ano) {
+        if (ano <= 2017) {
+            if (materia === 'Ciências Humanas') {
+                console.log(`[Range Dinâmico] Ano ${ano}: Natureza`);
+                return { min: 1, max: 45 };
+            }
+            if (materia === 'Linguagens') {
+                console.log(`[Range Dinâmico] Ano ${ano}: Linguagens `);
+                return { min: 91, max: 135 };
+            }
+            if (materia === 'Ciências da Natureza'){
+                console.log(`[Range Dinâmico] Ano ${ano}: Natureza`);
+                return {min: 46, max:90 };
+            }
         }
+
+        if (ano >= 2018) {
+            if (materia === 'Linguagens') {
+                console.log(`[Range Dinâmico] Ano ${ano}: Linguagens (Novo) 1-45`);
+                return { min: 1, max: 45 };
+            }
+            if (materia === 'Ciências Humanas') {
+                console.log(`[Range Dinâmico] Ano ${ano}: Natureza (Novo) 46-90`);
+                return { min: 46, max: 90 };
+            }
+            if (materia === 'Ciências da Natureza'){
+                console.log(`[Range Dinâmico] Ano ${ano}: Natureza`);
+                return {min: 91, max:135 };
+            }
+        }
+        const rangeFixo = RANGES_DAS_MATERIAS[materia];
+        if (rangeFixo) {
+            console.log(`[Range Fixo] Matéria ${materia}: Range ${rangeFixo.min}-${rangeFixo.max}`);
+            return rangeFixo;
+        }
+
+        console.warn(`Matéria "${materia}" não reconhecida. Usando range 1-180.`);
+        return { min: 1, max: 180 };
     }
 
     function getNumeroAleatorio(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    async function buscarUmaQuestaoAleatoria(rangeQuestoes) {
+    async function buscarUmaQuestaoAleatoria(materia) {
         const anoAleatorio = getNumeroAleatorio(2009, 2023);
-        const questaoAleatoria = getNumeroAleatorio(rangeQuestoes.min, rangeQuestoes.max);
+        const rangeDinamico = getRangeParaMateriaEAno(materia, anoAleatorio);
+        const questaoAleatoria = getNumeroAleatorio(rangeDinamico.min, rangeDinamico.max);
         const urlSorteada = `https://api.enem.dev/v1/exams/${anoAleatorio}/questions/${questaoAleatoria}`;
-        console.log(`Tentando buscar na URL: ${urlSorteada}`);
+
+        console.log(`Tentando buscar na URL: ${urlSorteada} (Materia: ${materia})`);
         try {
             const response = await fetch(urlSorteada);
             if (!response.ok) {
@@ -74,23 +104,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     botaoTentarNovamente.textContent = 'Próxima Questão';
                 }
             }
-            carregarEExibirQuiz(rangeDaMateriaAtual);
+            carregarEExibirQuiz(materiaAtual);
         }
     }
     function exibirResultadoFinal() {
         console.log("Quiz finalizado. Acertos:", acertos);
 
-        // Esconde os botões
         if (botaoTentarNovamente) botaoTentarNovamente.style.display = 'none';
         if (botaoVoltarMenu) botaoVoltarMenu.style.display = 'block';
-
-        // Limpa a tela
         if (elementoOpcoes) elementoOpcoes.innerHTML = '';
         if (elementoResposta) elementoResposta.textContent = '';
         if (elementoResposta) elementoResposta.style.cssText = '';
         if (elementoTituloQuestao) elementoTituloQuestao.textContent = 'Resultado Final';
-
-        // Mostra o placar
         if (elementoPergunta) {
             let porcentagem = ((acertos / totalQuestoes) * 100).toFixed(0);
             elementoPergunta.innerHTML = `
@@ -112,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nome: nome,
                 acertos: acertos,
                 totalQuestoes: totalQuestoes,
-                porcentagem: parseFloat(porcentagem) 
+                porcentagem: parseFloat(porcentagem)
             };
 
             const response = await fetch('/models/placar', {
@@ -132,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erro de rede ao salvar placar:', error);
         }
     }
-    async function carregarEExibirQuiz(rangeQuestoes) {
+    async function carregarEExibirQuiz(materia) {
         console.log(`Iniciando busca pela questão ${questaoAtual}...`);
         if (botaoTentarNovamente) botaoTentarNovamente.style.display = 'none';
         if (botaoVoltarMenu) botaoVoltarMenu.style.display = 'none';
@@ -148,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         while (questaoParaExibir === null && tentativas < maxTentativas) {
             tentativas++;
             console.log(`Tentativa ${tentativas} de ${maxTentativas}...`);
-            questaoParaExibir = await buscarUmaQuestaoAleatoria(rangeQuestoes);
+            questaoParaExibir = await buscarUmaQuestaoAleatoria(materia);
         }
 
         if (questaoParaExibir) {
@@ -165,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const containerQuiz = document.getElementById('quiz-container');
         if (containerQuiz) containerQuiz.style.display = 'block';
 
-        // Lógica do Enunciado
+
         if (elementoPergunta) {
             const ano = questaoParaExibir.year || (questaoParaExibir.exam ? questaoParaExibir.exam.year : "Ano Desconhecido");
             const disciplina = questaoParaExibir.discipline || "";
@@ -262,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const materiaSelecionada = elementoMateria.value;
             const numeroSelecionado = parseInt(elementoNumero.value, 10);
             totalQuestoes = (numeroSelecionado > 0) ? numeroSelecionado : 1;
-            rangeDaMateriaAtual = getRangeDaMateria(materiaSelecionada);
+            materiaAtual = materiaSelecionada;
 
             questaoAtual = 0;
             acertos = 0;
@@ -292,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
             totalQuestoes = 0;
             questaoAtual = 0;
             acertos = 0;
-            rangeDaMateriaAtual = null;
+            materiaAtual = null;
             if (botaoTentarNovamente) {
                 botaoTentarNovamente.textContent = 'Carregar Outra Pergunta';
             }

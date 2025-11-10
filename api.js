@@ -3,16 +3,14 @@ const JSON = require("json5");
 const path = require("path");
 const Placar = require("./models/placar");
 
-
 const express = require("express");
 const app = express();
 const port = 3000;
+
+app.use(express.json());
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -32,11 +30,14 @@ app.get("/Inicio", (_req, res) => {
     res.render('Inicio');
 });
 
-
-
 app.post('/models/placar', async (req, res) => {
     try {
         const { nome, acertos, totalQuestoes, porcentagem } = req.body;
+
+        if (nome === undefined || acertos === undefined || totalQuestoes === undefined || porcentagem === undefined) {
+           console.error('Erro: Dados incompletos recebidos do frontend:', req.body);
+           return res.status(400).json({ error: 'Dados incompletos. Verifique o payload.' });
+        }
 
         const novoPlacar = await Placar.create({
             nome: nome,
@@ -71,7 +72,6 @@ app.get('/api/placar', async (req, res) => {
         res.status(500).json({ error: 'Erro ao buscar placares' });
     }
 });
-
 
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);

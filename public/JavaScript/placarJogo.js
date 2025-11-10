@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function buscarPlacares() {
         try {
-            const response = await fetch('/models/placar');
+            const response = await fetch('/api/placar');
             if (!response.ok) {
                 listaPlacares.innerHTML = '<li>Erro ao carregar placares. Tente novamente.</li>';
                 return;

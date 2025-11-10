@@ -1,6 +1,6 @@
 const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize('ifvest', 'root', 'Nicolas2015.nf', {
-  host: 'localhost', // 'localhost' é o padrão para conexão local
+  host: 'localhost', 
   dialect: 'mysql'
 });
 
