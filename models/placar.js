@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../DataBase/index.js'); 
+const sequelize = require('../DataBase/placarBD'); 
 
 const Placar = sequelize.define('placar', {
   nome: {

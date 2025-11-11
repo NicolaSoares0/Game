@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let materiaAtual = null;
 
     const RANGES_DAS_MATERIAS = {
-        'Ciências da Natureza': { min: 90, max: 135 },
         'Matemática': { min: 136, max: 180 }
     };
 
