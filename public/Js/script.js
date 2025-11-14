@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 porcentagem: parseFloat(porcentagem)
             };
 
-            const response = await fetch('/models/placar', {
+            const response = await fetch('/api/placar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
